@@ -1,0 +1,83 @@
+{
+    "name": "health-types",
+    "version": "0.1.0",
+    "private": true,
+    "description": "TypeScript types for FHIR (STU3, R4, R4B, R5), generated from HL7's official definitions",
+    "keywords": [
+        "fhir",
+        "hl7",
+        "hl7-fhir",
+        "fhir-stu3",
+        "fhir-r4",
+        "fhir-r4b",
+        "fhir-r5",
+        "typescript",
+        "types",
+        "typings",
+        "healthcare",
+        "interoperability"
+    ],
+    "license": "MIT",
+    "author": "David Hale <dmhalejr@gmail.com>",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/dmhalejr/health-types.git"
+    },
+    "bugs": {
+        "url": "https://github.com/dmhalejr/health-types/issues"
+    },
+    "homepage": "https://github.com/dmhalejr/health-types#readme",
+    "sideEffects": false,
+    "files": [
+        "generated/**/*.d.ts"
+    ],
+    "exports": {
+        "./package.json": "./package.json",
+        "./*": {
+            "types": "./generated/*.d.ts"
+        }
+    },
+    "typesVersions": {
+        "*": {
+            "*": [
+                "generated/*"
+            ]
+        }
+    },
+    "devEngines": {
+        "runtime": {
+            "name": "node",
+            "version": ">=22.12.0",
+            "onFail": "error"
+        }
+    },
+    "scripts": {
+        "type-check": "tsc --noEmit",
+        "type-check:watch": "npm run type-check -- --watch",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "cli": "node -r ts-node/register/transpile-only tools/cli.ts",
+        "fetch": "node -r ts-node/register/transpile-only tools/cli.ts fetch",
+        "generate": "node -r ts-node/register/transpile-only tools/cli.ts generate",
+        "check:examples": "node --max-old-space-size=8192 -r ts-node/register/transpile-only tools/check-examples.ts",
+        "build:package": "node -r ts-node/register/transpile-only tools/build-types.ts",
+        "prepack": "npm run build:package",
+        "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix",
+        "lint:check": "eslint '*/**/*.{js,ts,tsx}' --max-warnings 0"
+    },
+    "devDependencies": {
+        "@types/node": "^22.20.5",
+        "@typescript-eslint/eslint-plugin": "^4.17.0",
+        "@typescript-eslint/parser": "^4.17.0",
+        "commander": "^14.0.3",
+        "eslint": "^7.22.0",
+        "eslint-config-prettier": "^8.1.0",
+        "eslint-plugin-prettier": "^3.3.1",
+        "fflate": "^0.8.3",
+        "prettier": "^2.2.1",
+        "ts-node": "^10.9.2",
+        "typescript": "^4.0.2",
+        "vitest": "^5.0.5",
+        "yaml": "^2.9.1"
+    }
+}

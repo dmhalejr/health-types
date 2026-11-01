@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Lint, types and unit tests (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npm run lint:check
+      - run: npm run type-check
+      # Without HL7's data the suites that need it skip themselves.
+      - run: npm test
+
+  integration:
+    name: Integration tests on HL7's data (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      # Downloads STU3, R4, R4B and R5 from hl7.org (about 200 MB).
+      - run: npm run fetch -- --version all
+      # The full suite: type-checks every generated release, compares with the
+      # specification, and packs and installs the real package.
+      - run: npm test
+      # prepack builds all four releases as .d.ts; this lists what would ship.
+      - run: npm pack --dry-run

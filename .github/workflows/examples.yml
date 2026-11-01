@@ -1,0 +1,32 @@
+name: Official examples
+
+# The release gate: type-checks every example resource HL7 publishes against the
+# generated types. Slow (a minute or more per release), so it does not run on
+# every push: start it by hand, or push a version tag.
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  examples:
+    name: Examples against ${{ matrix.version }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        version: [STU3, R4, R4B, R5]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run fetch -- --version ${{ matrix.version }}
+      # Fails only when a rejection is the generator's doing (see CONTRIBUTING.md).
+      - run: npm run check:examples -- --version ${{ matrix.version }}
