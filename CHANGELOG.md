@@ -2,9 +2,9 @@
 
 Versions follow [semantic versioning](https://semver.org/); until 1.0 every release bumps the patch number (see [CONTRIBUTING](CONTRIBUTING.md#versions-and-releases)).
 
-## Unreleased
+## 0.1.2 (2026-11-01)
 
-Publishing to npm and the GitHub release now happen from `.github/workflows/release.yml` when a version tag is pushed.
+Publishing to npm and the GitHub release now happen from `.github/workflows/release.yml` when a version tag is pushed. The package contents are the same as 0.1.1.
 
 ## 0.1.1 (2026-11-01)
 
