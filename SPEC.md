@@ -123,8 +123,8 @@ Release-ready when all are true. State on 2026-11-01:
 | 4 | LICENSE, README, CONTRIBUTING, CI workflow | Met: all four exist; the workflow's first run on GitHub is still to come |
 | 5 | `stringify.ts` removed or attributed | Met: removed |
 | 6 | Tests run in CI and pass | Met locally by running the workflow's commands in a clean copy (444 tests with data; 306 pass and 138 skip without); the first run on GitHub is pending |
-| 7 | No secrets or personal data in files or history | Open: scan before the squash (T16) |
-| 8 | Stray files | `.DS_Store` ignored; the prototype's sample output goes at release (T16) |
+| 7 | No secrets or personal data in files or history | Met: gitleaks found nothing in the old history or in the publishable files (2026-11-01); the only personal data is the author line in `package.json` and `LICENSE` |
+| 8 | Stray files | Met: `.DS_Store` ignored; the prototype's sample output is removed |
 | 9 | No high or critical advisories in runtime dependencies | Met: there are no runtime dependencies. 14 moderate advisories remain in the lint stack |
 | 10 | Unions, required fields and property sets match the specification | Met, pinned by tests for all four releases |
 | 11 | The official-example gate shows no rejection that is the generator's doing | Met: STU3 89.5%, R4 93.1%, R4B 99.2%, R5 99.9% pass |
@@ -137,5 +137,4 @@ Documented in the README for users: the types describe shape, not validity; a re
 ## Open items
 
 - **Re-check that the npm name `health-types` is still free** at publish time ([D5](docs/decisions.md): the package was renamed because of HL7's trademark policy; the GitHub repository is already renamed).
-- **Keep the old history** as a `git bundle` before the squash (D1).
-- **The first run of the workflows on GitHub**, and **the release steps** (T16: secret scan, squash, removing the prototype's sample output, the first publish).
+- **Make the repository public and publish to npm.** Both wait for the owner. The old history is kept in a `git bundle` outside the repository (D1). The workflows have run green on GitHub, and `v0.1.0` is a GitHub release with the tarball attached.

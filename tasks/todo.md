@@ -177,8 +177,8 @@ Definition of done for every task: `npm run type-check`, `npm run lint`, and `np
   - Verify: workflow lints (`actionlint` or dry run); passes on the first push.
   - Depends on: T11. Files: `.github/workflows/ci.yml`.
 
-- [ ] **T16: Release steps** (S) *(2026-11-01: secret scan, history bundle, prototype removal, squash and GitHub release done; making the repo public and `npm publish` still wait for the owner)*
-- [ ] (T16 detail) *(each external step requires the owner's explicit approval)*
+- [ ] **T16: Release steps** (S) *(each external step requires the owner's explicit approval)*
+  - Progress 2026-11-01: done: gitleaks scan (clean), history bundle, prototype removal, squash, tag `v0.1.0`, GitHub release with the tarball, first CI and examples runs (green on GitHub). Waiting for the owner: making the repository public, `npm publish`.
   - Before the squash, keep the old history: `git bundle create ../health-types-history.bundle --all` (stored outside the public repo; restorable with `git clone`), and say so in the squashed commit message.
   - Acceptance: secret scan (gitleaks) clean; repo squashed into one fresh initial commit; `npm pack --dry-run` reviewed; the npm name re-checked (D5 in `docs/decisions.md`: the package was renamed because of HL7's trademark policy; the GitHub repository is already `dmhalejr/health-types`); GitHub repo made public; `npm publish` run only after the owner's approval.
   - Verify: SPEC success criteria 1-9 all checked.

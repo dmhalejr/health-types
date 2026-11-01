@@ -102,7 +102,9 @@ The package is built by `npm pack` and `npm publish` themselves, through the `pr
 1. `npm test`, `npm run type-check`, `npm run lint`.
 2. `npm run check:examples -- --version <v>` for each of STU3, R4, R4B and R5.
 3. `npm pack --dry-run` and read the file list and size.
-4. Remove `"private": true` from `package.json` only when the release is meant to go out.
+4. Bump `version` in `package.json` (patch until 1.0), add the entry to `CHANGELOG.md`, commit, then tag `vX.Y.Z` and push the tag (this starts the examples workflow).
+5. `npm pack`, then `gh release create vX.Y.Z health-types-X.Y.Z.tgz` with notes from the changelog.
+6. Remove `"private": true` from `package.json` only when the release is meant to go to npm.
 
 ## Reporting a problem
 
