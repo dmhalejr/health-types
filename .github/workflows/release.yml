@@ -1,0 +1,44 @@
+name: Release
+
+# Publishes to npm and creates the GitHub release when a version tag is pushed.
+# npm "trusted publishing" signs in with this workflow's own identity, so there
+# is no npm token or secret in the repository: the package must be configured on
+# npmjs.com to trust this repository and this workflow file (see CONTRIBUTING.md).
+on:
+  push:
+    tags: ['v*']
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Publish ${{ github.ref_name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write # create the GitHub release
+      id-token: write # npm trusted publishing and provenance
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          cache: npm
+      - run: npm ci
+      - name: The tag must match package.json
+        run: test "v$(node -p "require('./package.json').version")" = "${{ github.ref_name }}"
+      - run: npm run fetch -- --version all
+      - run: npm run lint:check
+      - run: npm run type-check
+      - run: npm test
+      - name: Build the tarball
+        run: npm pack --pack-destination "$RUNNER_TEMP"
+      - name: Publish to npm
+        run: npm publish "$RUNNER_TEMP/health-types-${GITHUB_REF_NAME#v}.tgz" --provenance --access public
+      - name: Create the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" "$RUNNER_TEMP/health-types-${GITHUB_REF_NAME#v}.tgz" --title "health-types ${GITHUB_REF_NAME#v}" --generate-notes

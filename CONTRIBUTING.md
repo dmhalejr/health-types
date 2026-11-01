@@ -102,9 +102,10 @@ The package is built by `npm pack` and `npm publish` themselves, through the `pr
 1. `npm test`, `npm run type-check`, `npm run lint`.
 2. `npm run check:examples -- --version <v>` for each of STU3, R4, R4B and R5.
 3. `npm pack --dry-run` and read the file list and size.
-4. Bump `version` in `package.json` (patch until 1.0), add the entry to `CHANGELOG.md`, commit, then tag `vX.Y.Z` and push the tag (this starts the examples workflow).
-5. `npm pack`, then `gh release create vX.Y.Z health-types-X.Y.Z.tgz` with notes from the changelog.
-6. Remove `"private": true` from `package.json` only when the release is meant to go to npm.
+4. Bump `version` in `package.json` (patch until 1.0), add the entry to `CHANGELOG.md` and commit.
+5. Tag `vX.Y.Z` and push the tag. `.github/workflows/release.yml` checks that the tag matches `package.json`, runs lint, type-check and the full tests on HL7's data, publishes to npm with provenance and creates the GitHub release with the tarball. The examples workflow starts on the same tag.
+
+npm publishing uses [trusted publishing](https://docs.npmjs.com/trusted-publishers): there is no npm token in the repository. One-time setup on npmjs.com, package `health-types` → Settings → Trusted Publisher: GitHub Actions, owner `dmhalejr`, repository `health-types`, workflow `release.yml`. Publishing by hand (`npm publish` with your own login) still works as a fallback.
 
 ## Reporting a problem
 

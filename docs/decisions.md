@@ -25,6 +25,7 @@ The decisions that shaped the project, in the order they were made, with the rea
 | D19 | Toolchain: Vitest 5, Node 22.12, TypeScript 4.9 | Decided |
 | D20 | Continuous integration | Decided |
 | D21 | Versioning and releases | Decided |
+| D22 | Publishing from GitHub Actions | Decided |
 
 ## D1. Squash the repository history (2026-10-31)
 
@@ -138,3 +139,9 @@ The decisions that shaped the project, in the order they were made, with the rea
 ## D21. Versioning and releases (2026-11-01)
 
 **Decided.** Semantic versioning, `MAJOR.MINOR.PATCH`, tags `vX.Y.Z`. Before 1.0 the project stays on `0.1.x` and each release bumps the patch number; the first is `0.1.0`. The first releases are GitHub releases carrying the tarball that `npm pack` builds, so the exact package contents can be inspected before anything is published to npm. `"private": true` stays in `package.json` until the owner decides to publish, which makes an accidental `npm publish` fail.
+
+## D22. Publishing from GitHub Actions (2026-11-01)
+
+**Decided.** Pushing a `vX.Y.Z` tag runs `release.yml`: it checks the tag against `package.json`, runs the full checks on HL7's data, publishes to npm with provenance and creates the GitHub release with the tarball. Authentication is npm trusted publishing (OpenID Connect): the workflow signs in with its own identity, so the repository holds no npm token and no one-time codes are needed.
+**Why.** The first release was published by hand and went through npm's staged-publishing approval and a login in the browser. Publishing from a tag makes every release repeatable, checked and traceable to a commit, and the package page shows where it was built.
+**Needs.** A one-time setting on npmjs.com (see CONTRIBUTING). Until it is set, a tag push fails at the publish step, after the checks, and nothing is published. The examples gate is a separate workflow on the same tag and does not block publishing; read it before announcing a release.

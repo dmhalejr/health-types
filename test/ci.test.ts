@@ -14,6 +14,7 @@ interface Step {
 }
 interface Job {
   'timeout-minutes'?: number;
+  permissions?: Record<string, string>;
   strategy?: { matrix: Record<string, unknown[]> };
   steps: Step[];
 }
@@ -32,6 +33,7 @@ const load = (file: string): { text: string; workflow: Workflow } => {
 
 const ci = load('ci.yml');
 const examples = load('examples.yml');
+const release = load('release.yml');
 const steps = (workflow: Workflow): Step[] =>
   Object.values(workflow.jobs).flatMap((job) => job.steps);
 const commands = (workflow: Workflow): string[] =>
@@ -161,5 +163,63 @@ describe.each([
 
     expect(setup.length).toBeGreaterThan(0);
     setup.forEach((step) => expect(step.with?.cache).toBe('npm'));
+  });
+});
+
+describe('Release workflow', () => {
+  const { text, workflow } = release;
+  const job = Object.values(workflow.jobs)[0];
+
+  it('runs only when a version tag is pushed', () => {
+    expect(Object.keys(workflow.on)).toEqual(['push']);
+    expect(workflow.on.push?.tags).toEqual(['v*']);
+  });
+
+  it('gets its permissions from the job and asks only for what it needs', () => {
+    expect(workflow.permissions).toBeUndefined();
+    expect(job.permissions).toEqual({ contents: 'write', 'id-token': 'write' });
+    expect(job['timeout-minutes']).toBeGreaterThan(0);
+  });
+
+  it('publishes with the workflow identity, not a stored token', () => {
+    expect(text).not.toMatch(/secrets\.|NODE_AUTH_TOKEN|NPM_TOKEN/);
+    expect(text).not.toMatch(/pull_request|workflow_run/);
+    expect(text).toMatch(/npm publish .*--provenance/);
+  });
+
+  it('checks the tag against package.json, then tests, before publishing', () => {
+    const runs = job.steps.flatMap((step) => (step.run ? [step.run] : []));
+    const at = (needle: string): number =>
+      runs.findIndex((run) => run.includes(needle));
+
+    expect(at('package.json')).toBeGreaterThan(-1);
+    ['package.json', 'lint:check', 'type-check', 'npm test'].forEach((gate) =>
+      expect(at(gate), gate).toBeLessThan(at('npm publish')),
+    );
+    expect(at('npm run fetch')).toBeLessThan(at('npm test'));
+    expect(at('npm publish')).toBeLessThan(at('gh release create'));
+  });
+
+  it('uses official actions pinned to a major version, and a new enough Node for trusted publishing', () => {
+    job.steps
+      .flatMap((step) => step.uses ?? [])
+      .forEach((action: string) =>
+        expect(action).toMatch(/^actions\/[\w-]+@v\d+$/),
+      );
+    const setup = job.steps.find((step) =>
+      step.uses?.startsWith('actions/setup-node'),
+    );
+
+    expect(setup?.with?.['node-version']).toBeGreaterThanOrEqual(24);
+    expect(setup?.with?.['registry-url']).toBe('https://registry.npmjs.org');
+  });
+
+  it('only runs npm scripts that exist', () => {
+    job.steps
+      .flatMap((step) => (step.run ? [step.run] : []))
+      .flatMap((run) => [...run.matchAll(/npm run ([\w:-]+)/g)])
+      .forEach((match) =>
+        expect(manifest.scripts, match[1]).toHaveProperty(match[1]),
+      );
   });
 });
