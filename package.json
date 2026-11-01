@@ -1,7 +1,6 @@
 {
     "name": "health-types",
-    "version": "0.1.0",
-    "private": true,
+    "version": "0.1.1",
     "description": "TypeScript types for FHIR (STU3, R4, R4B, R5), generated from HL7's official definitions",
     "keywords": [
         "fhir",

@@ -2,6 +2,10 @@
 
 Versions follow [semantic versioning](https://semver.org/); until 1.0 every release bumps the patch number (see [CONTRIBUTING](CONTRIBUTING.md#versions-and-releases)).
 
+## 0.1.1 (2026-11-01)
+
+First release on npm (`npm install --save-dev health-types`). The contents are the same as 0.1.0; only the package metadata changed.
+
 ## 0.1.0 (2026-11-01)
 
 First release.
